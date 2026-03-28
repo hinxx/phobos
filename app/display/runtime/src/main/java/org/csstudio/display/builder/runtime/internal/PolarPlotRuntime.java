@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -19,6 +20,7 @@ import org.csstudio.display.builder.model.widgets.plots.PolarPlotPoint;
 import org.csstudio.display.builder.model.widgets.plots.PolarPlotWidget;
 import org.csstudio.display.builder.runtime.PVNameToValueBinding;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
+import org.epics.vtype.TimeProvider;
 import org.epics.vtype.VType;
 
 /** Runtime for the PolarPlotWidget.
@@ -27,14 +29,24 @@ import org.epics.vtype.VType;
 @SuppressWarnings("nls")
 public class PolarPlotRuntime extends WidgetRuntime<PolarPlotWidget>
 {
+    private static class TimedSample
+    {
+        final double value;
+        final Instant timestamp;
+
+        TimedSample(final double value, final Instant timestamp)
+        {
+            this.value = value;
+            this.timestamp = timestamp;
+        }
+    }
+
     private final Object buffer_lock = new Object();
     private final Deque<PolarPlotPoint> points = new ArrayDeque<>();
     private final List<PVNameToValueBinding> bindings = new ArrayList<>(2);
 
-    private volatile Double latest_radius = null;
-    private volatile Double latest_angle = null;
-    private volatile boolean has_radius = false;
-    private volatile boolean has_angle = false;
+    private volatile TimedSample latest_radius = null;
+    private volatile TimedSample latest_angle = null;
 
     private final WidgetPropertyListener<VType> radius_listener = (property, old_value, new_value) -> updateValue(true, new_value);
     private final WidgetPropertyListener<VType> angle_listener = (property, old_value, new_value) -> updateValue(false, new_value);
@@ -60,22 +72,18 @@ public class PolarPlotRuntime extends WidgetRuntime<PolarPlotWidget>
     private void updateValue(final boolean radius_update, final VType value)
     {
         final Double numeric = toDouble(value);
-        if (numeric == null)
+        final Instant timestamp = toTimestamp(value);
+        if (numeric == null || timestamp == null)
             return;
 
-        if (radius_update)
-        {
-            latest_radius = numeric;
-            has_radius = true;
-        }
-        else
-        {
-            latest_angle = numeric;
-            has_angle = true;
-        }
+        final TimedSample sample = new TimedSample(numeric, timestamp);
 
-        if (has_radius && has_angle)
-            appendPoint(latest_radius, latest_angle);
+        if (radius_update)
+            latest_radius = sample;
+        else
+            latest_angle = sample;
+
+        correlateSamples();
     }
 
     private Double toDouble(final VType value)
@@ -91,6 +99,34 @@ public class PolarPlotRuntime extends WidgetRuntime<PolarPlotWidget>
             logger.log(Level.FINER, "Ignoring non-numeric polar plot update", ex);
             return null;
         }
+    }
+
+    private Instant toTimestamp(final VType value)
+    {
+        if (value instanceof TimeProvider)
+            return ((TimeProvider) value).getTime().getTimestamp();
+        logger.log(Level.FINER, "Ignoring polar plot update without timestamp");
+        return null;
+    }
+
+    private void correlateSamples()
+    {
+        final TimedSample radius = latest_radius;
+        final TimedSample angle = latest_angle;
+        if (radius == null || angle == null)
+            return;
+
+        final int comparison = radius.timestamp.compareTo(angle.timestamp);
+        if (comparison == 0)
+        {
+            appendPoint(radius.value, angle.value);
+            latest_radius = null;
+            latest_angle = null;
+        }
+        else if (comparison < 0)
+            latest_radius = null;
+        else
+            latest_angle = null;
     }
 
     private void appendPoint(final double radius, final double angle)

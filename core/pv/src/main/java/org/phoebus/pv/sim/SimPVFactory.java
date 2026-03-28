@@ -71,6 +71,10 @@ public class SimPVFactory implements PVFactory
             return NoiseWavePV.forParameters(name, parseDoubles(parameters));
         else if (func.equals("flipflop"))
             return FlipFlopPV.forParameters(name, parseDoubles(parameters));
+        else if (func.equals("polarradius"))
+            return PolarPairPV.forParameters(name, PolarPairPV.Component.RADIUS, parseDoubles(parameters));
+        else if (func.equals("polarangle"))
+            return PolarPairPV.forParameters(name, PolarPairPV.Component.ANGLE, parseDoubles(parameters));
         else if (func.equals("const"))
             return ConstPV.create(name, base_name);
         else

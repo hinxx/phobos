@@ -51,6 +51,8 @@ Default behavior should support the last 100 points unless overridden by `buffer
 When PVs update:
 - update the latest radius or angle state
 - append a new point only when a complete `(r, theta)` pair is available, or based on the same kind of trigger discipline used by the reference implementation
+- correlate `radius` and `angle` samples only when they have exactly the same source timestamp
+- do not pair a newer sample from one PV with an older sample from the other PV if their timestamps differ
 
 ### Redraw throttling
 Do not redraw the UI on every PV event if updates are frequent.
@@ -110,6 +112,16 @@ Before finishing:
 - verify PV hookup behavior is reasonable
 - verify no obvious threading or redraw issues were introduced
 
+## Paired Simulator Task
+Add a tiny custom Phoebus simulator for Polar Plot testing that allows `radius` and `angle` PVs to be generated from one shared producer with exactly the same timestamp.
+
+The simulator should:
+- integrate into the existing `sim://` PV infrastructure rather than introducing a new PV type
+- provide separate PV names for `radius` and `angle`
+- ensure both PVs in the same simulated pair are updated from one code path and one shared timestamp source
+- be minimal and practical for editor/runtime testing of the Polar Plot widget
+- include autocomplete support for the new `sim://` forms if that is how simulated PVs are exposed elsewhere in Phoebus
+
 ## Implementation notes
 The final implementation followed the intent of the instructions, but some concrete details were adapted to match the actual Phoebus codebase:
 
@@ -124,3 +136,7 @@ The final implementation followed the intent of the instructions, but some concr
 - The widget currently reuses `/icons/xyplot.png` for palette/editor visibility. No dedicated Polar Plot icon was added.
 - The representation interprets `theta` in radians because it directly applies `Math.cos(theta)` and `Math.sin(theta)`.
 - Validation completed by compiling the affected modules successfully. Palette/property-sheet/runtime behavior was confirmed manually in the running application after the build.
+- Polar Plot testing now also includes a custom paired simulator in the existing `sim://` namespace:
+  `sim://polarradius(pair_id, max_radius, steps, update_seconds)` and
+  `sim://polarangle(pair_id, max_radius, steps, update_seconds)`.
+  Matching `pair_id` values share one producer and one timestamp so the Polar Plot runtime can enforce exact timestamp correlation while still being testable without an external IOC.

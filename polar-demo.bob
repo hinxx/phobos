@@ -53,7 +53,8 @@
     <y>120</y>
     <width>540</width>
     <height>440</height>
-    <radius_pv>sim://ramp(0, 100, 1, 0.05)</radius_pv>
-    <angle_pv>sim://sine(0, 6.28318, 120, 0.05)</angle_pv>
+    <radius_pv>sim://polarradius(17, 100, 120, 0.1)</radius_pv>
+    <angle_pv>sim://polarangle(17, 100, 120, 0.1)</angle_pv>
+    <buffer_size>30</buffer_size>
   </widget>
 </display>
