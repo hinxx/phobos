@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.widgets.plots.PolarPlotPoint;
@@ -38,6 +40,8 @@ import javafx.scene.text.TextAlignment;
 @SuppressWarnings("nls")
 public class JFXXYPolarPlotRepresentation extends RegionBaseRepresentation<Pane, PolarPlotWidget>
 {
+    private static final double ALARM_RADIUS_FRACTION = 0.8;
+
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_config = new DirtyFlag();
     private final DirtyFlag dirty_points = new DirtyFlag();
@@ -194,8 +198,7 @@ public class JFXXYPolarPlotRepresentation extends RegionBaseRepresentation<Pane,
         if (size <= 0)
             return;
 
-        double prev_x = Double.NaN;
-        double prev_y = Double.NaN;
+        final Color alarm = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
         for (int i = 0; i < size; ++i)
         {
             final PolarPlotPoint point = points.get(i);
@@ -204,20 +207,30 @@ public class JFXXYPolarPlotRepresentation extends RegionBaseRepresentation<Pane,
             final double x = center_x + distance * Math.cos(point.getAngle());
             final double y = center_y - distance * Math.sin(point.getAngle());
             final double alpha = 0.15 + 0.85 * (i + 1.0) / size;
-            final Color color = new Color(trace.getRed(), trace.getGreen(), trace.getBlue(), alpha);
-
-            if (!Double.isNaN(prev_x))
-            {
-                gc.setStroke(color);
-                gc.setLineWidth(2.0);
-                gc.strokeLine(prev_x, prev_y, x, y);
-            }
+            final Color color = applyAgeAlpha(blendedTraceColor(trace, alarm, normalized), alpha);
 
             gc.setFill(color);
             gc.fillOval(x - 2.5, y - 2.5, 5.0, 5.0);
-            prev_x = x;
-            prev_y = y;
         }
+    }
+
+    private Color blendedTraceColor(final Color trace, final Color alarm, final double normalized_radius)
+    {
+        final double blend = Math.max(0.0, (normalized_radius - ALARM_RADIUS_FRACTION) / (1.0 - ALARM_RADIUS_FRACTION));
+        return new Color(interpolate(trace.getRed(), alarm.getRed(), blend),
+                         interpolate(trace.getGreen(), alarm.getGreen(), blend),
+                         interpolate(trace.getBlue(), alarm.getBlue(), blend),
+                         1.0);
+    }
+
+    private Color applyAgeAlpha(final Color color, final double alpha)
+    {
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+    }
+
+    private double interpolate(final double start, final double end, final double factor)
+    {
+        return start + (end - start) * factor;
     }
 
     private Color deriveGridColor(final Color foreground, final Color background)
