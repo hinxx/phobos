@@ -53,6 +53,7 @@ import org.csstudio.display.builder.model.widgets.Viewer3dWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.DataBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
+import org.csstudio.display.builder.model.widgets.plots.PolarPlotWidget;
 import org.csstudio.display.builder.model.widgets.plots.StripchartWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 
@@ -87,6 +88,7 @@ public class BaseWidgetsService implements WidgetsService
             MultiStateLEDWidget.WIDGET_DESCRIPTOR,
             NavigationTabsWidget.WIDGET_DESCRIPTOR,
             PictureWidget.WIDGET_DESCRIPTOR,
+            PolarPlotWidget.WIDGET_DESCRIPTOR,
             PolygonWidget.WIDGET_DESCRIPTOR,
             PolylineWidget.WIDGET_DESCRIPTOR,
             ProgressBarWidget.WIDGET_DESCRIPTOR,

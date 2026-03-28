@@ -24,6 +24,7 @@ import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TemplateInstanceWidget;
 import org.csstudio.display.builder.model.widgets.plots.DataBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
+import org.csstudio.display.builder.model.widgets.plots.PolarPlotWidget;
 import org.csstudio.display.builder.model.widgets.plots.StripchartWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
@@ -44,6 +45,7 @@ public class BaseWidgetRuntimes implements WidgetRuntimesService
             entry(GroupWidget.WIDGET_DESCRIPTOR.getType(),           () -> new GroupWidgetRuntime()),
             entry(ImageWidget.WIDGET_DESCRIPTOR.getType(),           () -> new ImageWidgetRuntime()),
             entry(NavigationTabsWidget.WIDGET_DESCRIPTOR.getType(),  () -> new NavigationTabsRuntime()),
+            entry(PolarPlotWidget.WIDGET_DESCRIPTOR.getType(),       () -> new PolarPlotRuntime()),
             entry(ScaledSliderWidget.WIDGET_DESCRIPTOR.getType(),    () -> new SliderWidgetRuntime()),
             entry(ScrollBarWidget.WIDGET_DESCRIPTOR.getType(),       () -> new SliderWidgetRuntime()),
             entry(StripchartWidget.WIDGET_DESCRIPTOR.getType(),      () -> new StripchartWidgetRuntime()),

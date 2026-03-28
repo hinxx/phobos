@@ -53,12 +53,14 @@ import org.csstudio.display.builder.model.widgets.Viewer3dWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.DataBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
+import org.csstudio.display.builder.model.widgets.plots.PolarPlotWidget;
 import org.csstudio.display.builder.model.widgets.plots.StripchartWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentationFactory;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.DataBrowserRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.plots.JFXXYPolarPlotRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.StripchartRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
 import org.csstudio.display.builder.representation.spi.WidgetRepresentationsService;
@@ -103,6 +105,7 @@ public class BaseWidgetRepresentations implements WidgetRepresentationsService
             entry(MultiStateLEDWidget.WIDGET_DESCRIPTOR,   () -> (WidgetRepresentation) new MultiStateLEDRepresentation()),
             entry(NavigationTabsWidget.WIDGET_DESCRIPTOR,  () -> (WidgetRepresentation) new NavigationTabsRepresentation()),
             entry(PictureWidget.WIDGET_DESCRIPTOR,         () -> (WidgetRepresentation) new PictureRepresentation()),
+            entry(PolarPlotWidget.WIDGET_DESCRIPTOR,       () -> (WidgetRepresentation) new JFXXYPolarPlotRepresentation()),
             entry(PolygonWidget.WIDGET_DESCRIPTOR,         () -> (WidgetRepresentation) new PolygonRepresentation()),
             entry(PolylineWidget.WIDGET_DESCRIPTOR,        () -> (WidgetRepresentation) new PolylineRepresentation()),
             entry(ProgressBarWidget.WIDGET_DESCRIPTOR,     () -> (WidgetRepresentation) new ProgressBarRepresentation()),
